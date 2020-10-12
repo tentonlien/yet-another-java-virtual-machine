@@ -1,5 +1,6 @@
 use std::process::exit;
 use std::fs;
+use crate::class_loader::constant_pool_analyzer::ConstantPool;
 
 mod constant_pool_analyzer;
 
@@ -12,6 +13,7 @@ pub struct JavaClass {
     minor_version: u16,
     major_version: u16,
     constant_pool_size: u16,
+    constant_pool: ConstantPool,
     byte_code_stream: Vec<u8>
 }
 
@@ -22,6 +24,7 @@ impl JavaClass {
             minor_version: 0,
             major_version: 0,
             constant_pool_size: 0,
+            constant_pool: ConstantPool::new(),
             byte_code_stream: vec![]
         }
     }
@@ -45,7 +48,7 @@ impl JavaClass {
 
         self.constant_pool_size = (self.byte_code_stream[8] as u16) * 256 + (self.byte_code_stream[9] as u16);
 
-        constant_pool_analyzer::analyze(&self.byte_code_stream, self.constant_pool_size);
+        self.constant_pool.analyze(&self.byte_code_stream, self.constant_pool_size);
     }
 
     pub fn print_info(&self) {
@@ -56,7 +59,7 @@ impl JavaClass {
             0x42..=0xFF => String::from("later than JDK 15"),
             _ =>  "Unidentified".to_string()
         });
-        println!("Constant Pool Size: {}", self.constant_pool_size);
+        self.constant_pool.print();
     }
 
     pub fn print_byte_code(&self) {
