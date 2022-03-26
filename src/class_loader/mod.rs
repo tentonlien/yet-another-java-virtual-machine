@@ -1,13 +1,13 @@
+/// Author: Tenton Lien
+/// Date: 2020/10/09
+
 use std::process::exit;
 use std::fs;
+use log::{debug, error};
 use crate::class_loader::constant_pool_analyzer::ConstantPool;
 
 mod constant_pool_analyzer;
 
-/*
- * Author: Tenton Lien
- * Date: 10/9/2020
- */
 
 pub struct JavaClass {
     minor_version: u16,
@@ -33,13 +33,13 @@ impl JavaClass {
 
         // Read class file
         self.byte_code_stream = fs::read(path).unwrap();
-        println!("Length of byte codes: {}", self.byte_code_stream.len());
+        debug!("Length of byte codes: {}", self.byte_code_stream.len());
 
         // Check magic number
         if !(self.byte_code_stream[0] == 0xCA && self.byte_code_stream[1] == 0xFE &&
             self.byte_code_stream[2] == 0xBA && self.byte_code_stream[3] == 0xBE) {
-            println!("Invalid magic number!");
-            exit(0);
+            error!("Invalid magic number!");
+            exit(-1);
         }
 
         // Read version info
@@ -52,7 +52,7 @@ impl JavaClass {
     }
 
     pub fn print_info(&self) {
-        println!("Version: {}/{} ({})", self.minor_version, self.major_version, String::from("JDK ") + & match self.major_version {
+        debug!("Version: Minor={}/Major={} (JDK {})", self.minor_version, self.major_version, match self.major_version {
             0x00..=0x33 => String::from("earlier than JDK 1.8"),
             0x34 => "1.8".to_string(),
             0x35..=0x41 =>  (self.major_version - 44).to_string(),

@@ -1,7 +1,7 @@
-/*
- * Author: Tenton Lien
- * Date: 10/11/2020
- */
+/// Author: Tenton Lien
+/// Date: 2020/10/11
+
+use log::{debug};
 
 pub struct ConstantPool {
     constants: Vec<ConstantInfo>
@@ -71,7 +71,7 @@ impl ConstantPool {
     }
 
     pub fn print(&self) {
-        println!("Constant Pool (Size = {})", self.constants.len());
+        debug!("Constant Pool (Size = {})", self.constants.len());
         for i in 0..self.constants.len() {
             print!("#{} = ", i + 1);
             self.constants[i].print();

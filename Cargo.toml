@@ -1,9 +1,10 @@
 [package]
 name = "java-bytecode-parser"
 version = "0.1.0"
-authors = ["Tenton Lien <tentonlien@users.noreply.github.com>"]
+authors = ["Tenton Lien <tentonlien@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log = { version = "0.4", features = ["std", "serde"] }

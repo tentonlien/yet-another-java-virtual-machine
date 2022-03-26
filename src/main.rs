@@ -1,20 +1,31 @@
-mod class_loader;
+/// Author: Tenton Lien
+/// Date: 2020/10/09
 
 use std::env;
-use class_loader::JavaClass;
+use std::process::exit;
+use log::{error, info, LevelFilter};
 
-/*
- * Author: Tenton Lien
- * Date: 10/9/2020
- */
+use class_loader::JavaClass;
+use util::logger::Logger;
+
+mod class_loader;
+mod util;
+
 
 fn main() {
-    println!("Java byte code parser starts!");
-    for argument in env::args() {
-        println!("*** args = {}", argument);
+    log::set_boxed_logger(Box::new(Logger {})).unwrap();
+    log::set_max_level(LevelFilter::Debug);
+
+    info!("Java byte code parser starts!");
+    let args_vec: Vec<String> = env::args().collect();
+
+    if args_vec.len() < 2 {
+        error!("Target bytecode file required");
+        exit(-1);
     }
 
     let mut java_class = JavaClass::new();
-    java_class.load("resources/hi.class");
+    java_class.load(&args_vec[1]);
     java_class.print_info();
+    java_class.print_byte_code();
 }

@@ -1,2 +1,2 @@
-# java-bytecode-parser
- A Simple Java Bytecode Parser Written in Rust
+# Yet Another Java Virtual Machine
+ A Simple Java Virtual Machine Written in Rust
