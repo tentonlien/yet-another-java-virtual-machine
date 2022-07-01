@@ -7,6 +7,7 @@ use log::{debug, error};
 use crate::class_loader::constant_pool_analyzer::ConstantPool;
 
 mod constant_pool_analyzer;
+mod instruction_analyzer;
 
 
 pub struct JavaClass {
@@ -14,18 +15,17 @@ pub struct JavaClass {
     major_version: u16,
     constant_pool_size: u16,
     constant_pool: ConstantPool,
-    byte_code_stream: Vec<u8>
+    byte_code_stream: Vec<u8>,
 }
 
 impl JavaClass {
-
     pub fn new() -> JavaClass {
         JavaClass {
             minor_version: 0,
             major_version: 0,
             constant_pool_size: 0,
             constant_pool: ConstantPool::new(),
-            byte_code_stream: vec![]
+            byte_code_stream: vec![],
         }
     }
 
@@ -48,18 +48,15 @@ impl JavaClass {
 
         self.constant_pool_size = (self.byte_code_stream[8] as u16) * 256 + (self.byte_code_stream[9] as u16);
 
-        self.constant_pool.analyze(&self.byte_code_stream, self.constant_pool_size);
-    }
-
-    pub fn print_info(&self) {
-        debug!("Version: Minor={}/Major={} (JDK {})", self.minor_version, self.major_version, match self.major_version {
+        debug!("Version: Minor = {} / Major = {} (JDK {})", self.minor_version, self.major_version, match self.major_version {
             0x00..=0x33 => String::from("earlier than JDK 1.8"),
             0x34 => "1.8".to_string(),
-            0x35..=0x41 =>  (self.major_version - 44).to_string(),
+            0x35..=0x41 => (self.major_version - 44).to_string(),
             0x42..=0xFF => String::from("later than JDK 15"),
-            _ =>  "Unidentified".to_string()
+            _ => "Unidentified".to_string()
         });
-        self.constant_pool.print();
+
+        self.constant_pool.analyze(&self.byte_code_stream, self.constant_pool_size);
     }
 
     pub fn print_byte_code(&self) {

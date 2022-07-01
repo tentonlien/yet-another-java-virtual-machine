@@ -3,38 +3,82 @@
 
 use log::{debug};
 
+#[derive(Debug)]
+enum ConstantTag {
+    Utf8,
+    Integer,
+    Float,
+    Long,
+    Double,
+    Class,
+    String,
+    Fieldref,
+    Methodref,
+    InterfaceMethodref,
+    NameAndType,
+    MethodHandle,
+    MethodType,
+    InvokeDynamic,
+    Unknown
+}
+
+
+pub struct ConstantItem {
+    tag: ConstantTag,
+    content: String
+}
+
+impl ConstantItem {
+
+    fn new(tag: ConstantTag, content: String) -> ConstantItem {
+        ConstantItem {
+            tag,
+            content
+        }
+    }
+}
+
 pub struct ConstantPool {
-    constants: Vec<ConstantInfo>
+    constants: Vec<ConstantItem>
 }
 
 impl ConstantPool {
+
+    const CONSTANT_POOL_START_POSITION: u16 = 10;
+
     pub fn new() -> ConstantPool {
         ConstantPool {
             constants: Vec::new()
         }
     }
 
+    fn get_constant_tag(val: u8) -> ConstantTag {
+        match val {
+            1 => ConstantTag::Utf8,
+            3 => ConstantTag::Integer,
+            4 => ConstantTag::Float,
+            5 => ConstantTag::Long,
+            6 => ConstantTag::Double,
+            7 => ConstantTag::Class,
+            8 => ConstantTag::String,
+            9 => ConstantTag::Fieldref,
+            10 => ConstantTag::Methodref,
+            11 => ConstantTag::InterfaceMethodref,
+            12 => ConstantTag::NameAndType,
+            15 => ConstantTag::MethodHandle,
+            16 => ConstantTag::MethodType,
+            18 => ConstantTag::InvokeDynamic,
+            _ => ConstantTag::Unknown
+        }
+    }
+
     pub fn analyze(&mut self, byte_code: &Vec<u8>, constant_amount: u16) {
-        const CONSTANT_POOL_START_POSITION: u16 = 10;
-        let mut cursor = CONSTANT_POOL_START_POSITION;
-        for _i in 1..constant_amount {
-            let tag =  match byte_code[cursor as usize] {
-                1 => ConstantTag::Utf8,
-                3 => ConstantTag::Integer,
-                4 => ConstantTag::Float,
-                5 => ConstantTag::Long,
-                6 => ConstantTag::Double,
-                7 => ConstantTag::Class,
-                8 => ConstantTag::String,
-                9 => ConstantTag::Fieldref,
-                10 => ConstantTag::Methodref,
-                11 => ConstantTag::InterfaceMethodref,
-                12 => ConstantTag::NameAndType,
-                15 => ConstantTag::MethodHandle,
-                16 => ConstantTag::MethodType,
-                18 => ConstantTag::InvokeDynamic,
-                _ => ConstantTag::Unknown
-            };
+        let mut cursor = Self::CONSTANT_POOL_START_POSITION;
+
+        debug!("Constant Pool (Size = {})", constant_amount - 1);
+
+        for i in 1..constant_amount {
+            let tag = Self::get_constant_tag(byte_code[cursor as usize]);
             let mut content: String = String::new();
 
             cursor += match tag {
@@ -66,53 +110,8 @@ impl ConstantPool {
                 }
                 _ => 5
             };
-            self.constants.push(ConstantInfo::new(tag, content));
+            debug!("#{} = {:?} {}", i, tag, content);
+            self.constants.push(ConstantItem::new(tag, content));
         }
     }
-
-    pub fn print(&self) {
-        debug!("Constant Pool (Size = {})", self.constants.len());
-        for i in 0..self.constants.len() {
-            print!("#{} = ", i + 1);
-            self.constants[i].print();
-        }
-    }
-}
-
-pub struct ConstantInfo {
-    tag: ConstantTag,
-    content: String
-}
-
-impl ConstantInfo {
-
-    fn new(tag: ConstantTag, content: String) -> ConstantInfo {
-        ConstantInfo {
-            tag,
-            content
-        }
-    }
-
-    fn print(&self) {
-        println!("{:?} ({})", self.tag, self.content);
-    }
-}
-
-#[derive(Debug)]
-enum ConstantTag {
-    Utf8,
-    Integer,
-    Float,
-    Long,
-    Double,
-    Class,
-    String,
-    Fieldref,
-    Methodref,
-    InterfaceMethodref,
-    NameAndType,
-    MethodHandle,
-    MethodType,
-    InvokeDynamic,
-    Unknown
 }

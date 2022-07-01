@@ -10,22 +10,26 @@ use util::logger::Logger;
 
 mod class_loader;
 mod util;
+mod vm_structure;
 
 
 fn main() {
+    // Config logger
     log::set_boxed_logger(Box::new(Logger {})).unwrap();
     log::set_max_level(LevelFilter::Debug);
 
-    info!("Java byte code parser starts!");
-    let args_vec: Vec<String> = env::args().collect();
+    String::from("hello");
 
+    // Check args from command line
+    let args_vec: Vec<String> = env::args().collect();
     if args_vec.len() < 2 {
         error!("Target bytecode file required");
         exit(-1);
     }
 
+    // Load Java class
     let mut java_class = JavaClass::new();
     java_class.load(&args_vec[1]);
-    java_class.print_info();
-    java_class.print_byte_code();
+    // java_class.print_info();
+    // java_class.print_byte_code();
 }
